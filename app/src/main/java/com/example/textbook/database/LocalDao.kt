@@ -18,6 +18,9 @@ interface LocalDao {
     @Query("select * from textbook LIMIT $PAGE_SIZE OFFSET :offset")
     fun loadTextbooks(offset: Int): List<Textbook>
 
+    @Query("select * from textbook WHERE isFavorite=1 LIMIT $PAGE_SIZE OFFSET :offset")
+    fun loadFavoriteTextbooks(offset: Int): List<Textbook>
+
     @Update
     fun updateTextbook(textbook: Textbook): Int
 }

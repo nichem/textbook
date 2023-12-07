@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -12,9 +13,11 @@ import androidx.paging.PagingDataAdapter
 import androidx.paging.cachedIn
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.textbook.App
+import com.example.textbook.AppViewModel
 import com.example.textbook.R
 import com.example.textbook.adapter.TextbookAdapter
 import com.example.textbook.adapter.TextbookComparator
+import com.example.textbook.database.Repository
 import com.example.textbook.database.Textbook
 import com.example.textbook.databinding.FragmentAllTextbookBinding
 import com.example.textbook.paging.TextbookPagingSource
@@ -22,15 +25,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class AllTextbookFragment : Fragment() {
-    private val flow = Pager(
-        PagingConfig(pageSize = App.PAGE_SIZE)
-    ) {
-        TextbookPagingSource()
-    }.flow
-        .cachedIn(lifecycleScope)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private val appViewModel by lazy {
+        ViewModelProvider(requireActivity())[AppViewModel::class.java]
     }
 
     private lateinit var binding: FragmentAllTextbookBinding
@@ -47,10 +43,11 @@ class AllTextbookFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        adapter.callback = textbookCallback
         binding.rv.adapter = adapter
         binding.rv.itemAnimator = null
         lifecycleScope.launch {
-            flow.collectLatest {
+            appViewModel.allFlow.collectLatest {
                 adapter.submitData(it)
             }
         }
@@ -58,6 +55,19 @@ class AllTextbookFragment : Fragment() {
 
     private val adapter by lazy {
         TextbookAdapter(TextbookComparator())
+    }
+
+    private val textbookCallback = object : TextbookAdapter.Callback {
+        override fun onFavoriteClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
+            lifecycleScope.launch {
+                val row = Repository.favoriteTextbook(textbook, !textbook.isFavorite)
+                if (row > 0) {
+                    textbook.isFavorite = !textbook.isFavorite
+                    adapter.notifyItemChanged(position)
+                    appViewModel.reloadFavorite()
+                }
+            }
+        }
     }
 
     companion object {

@@ -37,4 +37,11 @@ object Repository {
             localDao.updateTextbook(textbook2)
         }
     }
+
+    suspend fun loadFavoriteTextBooks(page: Int): List<Textbook> {
+        val offset = page * App.PAGE_SIZE
+        return withContext(IO) {
+            localDao.loadFavoriteTextbooks(offset)
+        }
+    }
 }

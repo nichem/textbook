@@ -8,7 +8,8 @@ import com.example.textbook.database.LocalDao
 import com.example.textbook.database.Repository
 import com.example.textbook.database.Textbook
 
-class TextbookPagingSource() : PagingSource<Int, Textbook>() {
+class TextbookPagingSource(private val loadPages: suspend (Int) -> List<Textbook>) :
+    PagingSource<Int, Textbook>() {
     override fun getRefreshKey(state: PagingState<Int, Textbook>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
@@ -19,7 +20,7 @@ class TextbookPagingSource() : PagingSource<Int, Textbook>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Textbook> {
         try {
             val key = params.key ?: 0
-            val textbooks = Repository.loadTextbooks(key)
+            val textbooks = loadPages(key)
             return LoadResult.Page<Int, Textbook>(
                 textbooks,
                 if (key == 0) null else key - 1,

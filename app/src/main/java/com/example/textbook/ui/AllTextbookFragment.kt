@@ -5,10 +5,29 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingDataAdapter
+import androidx.paging.cachedIn
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.example.textbook.App
 import com.example.textbook.R
+import com.example.textbook.adapter.TextbookAdapter
+import com.example.textbook.adapter.TextbookComparator
+import com.example.textbook.database.Textbook
 import com.example.textbook.databinding.FragmentAllTextbookBinding
+import com.example.textbook.paging.TextbookPagingSource
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class AllTextbookFragment : Fragment() {
+    private val flow = Pager(
+        PagingConfig(pageSize = App.PAGE_SIZE)
+    ) {
+        TextbookPagingSource()
+    }.flow
+        .cachedIn(lifecycleScope)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +47,17 @@ class AllTextbookFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.rv.adapter = adapter
+        binding.rv.itemAnimator = null
+        lifecycleScope.launch {
+            flow.collectLatest {
+                adapter.submitData(it)
+            }
+        }
+    }
 
+    private val adapter by lazy {
+        TextbookAdapter(TextbookComparator())
     }
 
     companion object {

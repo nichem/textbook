@@ -1,5 +1,6 @@
 package com.example.textbook.database
 
+import androidx.recyclerview.widget.DiffUtil
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -14,5 +15,6 @@ data class Textbook(
     val preview: List<String>,
     val thumbnails: List<String>,
     val size: Int,
-    val tags: List<String>
+    val tags: List<String>,
+    var isFavorite: Boolean = false
 )

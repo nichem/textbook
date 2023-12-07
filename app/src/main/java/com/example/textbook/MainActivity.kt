@@ -5,8 +5,13 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.textbook.App.Companion.PAGE_SIZE
 import com.example.textbook.databinding.ActivityMainBinding
+import com.example.textbook.paging.TextbookPagingSource
 import com.example.textbook.ui.AllTextbookFragment
 import com.example.textbook.ui.FavoriteFragment
 import com.example.textbook.utils.DataUtils.generateData

@@ -32,7 +32,7 @@ object Repository {
      * @return 影响的行数
      */
     suspend fun favoriteTextbook(textbook: Textbook, isFavorite: Boolean): Int {
-        val textbook2 = textbook.copy(isFavorite = !isFavorite)
+        val textbook2 = textbook.copy(isFavorite = isFavorite)
         return withContext(IO) {
             localDao.updateTextbook(textbook2)
         }

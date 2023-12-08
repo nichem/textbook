@@ -61,8 +61,8 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
     }
 
     fun pureTitle(title: String): String {
-        val pure = title.replace("义务教育教科书·", "")
-        return "《$pure》"
+//        val pure = title.replace("义务教育教科书·", "")
+        return "《$title》"
     }
 
     var callback: Callback? = null

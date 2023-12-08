@@ -1,7 +1,10 @@
 package com.example.textbook.database
 
+import android.util.Log
 import androidx.room.Room
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.textbook.App
+import com.example.textbook.App.Companion.PAGE_SIZE
 import com.example.textbook.App.Companion.app
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
@@ -24,7 +27,7 @@ object Repository {
     }
 
     suspend fun loadTextbooks(page: Int): List<Textbook> {
-        val offset = page * App.PAGE_SIZE
+        val offset = page * PAGE_SIZE
         return withContext(IO) { localDao.loadTextbooks(offset) }
     }
 
@@ -39,9 +42,25 @@ object Repository {
     }
 
     suspend fun loadFavoriteTextBooks(page: Int): List<Textbook> {
-        val offset = page * App.PAGE_SIZE
+        val offset = page * PAGE_SIZE
         return withContext(IO) {
             localDao.loadFavoriteTextbooks(offset)
+        }
+    }
+
+    suspend fun findTextbook(key: String, page: Int): List<Textbook> {
+        val offset = page * PAGE_SIZE
+        val keys = key.split(" ")
+        var query = "SELECT * from textbook WHERE "
+        keys.forEach {
+            if (it.isBlank()) return@forEach
+            query += "title LIKE '%$it%' AND "
+        }
+        query = query.substring(0, query.length - 4)
+        query += "LIMIT $PAGE_SIZE OFFSET $offset"
+        Log.d("test", "query: $query")
+        return withContext(IO) {
+            localDao.findTextbookByTitle(SimpleSQLiteQuery(query))
         }
     }
 }

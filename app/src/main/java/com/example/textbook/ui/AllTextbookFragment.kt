@@ -51,6 +51,9 @@ class AllTextbookFragment : Fragment() {
                 adapter.submitData(it)
             }
         }
+        appViewModel.selectItemLiveData.observe(this.viewLifecycleOwner) {
+            if (it == null) binding.rv.clearFocus()
+        }
     }
 
     private val adapter by lazy {
@@ -67,6 +70,10 @@ class AllTextbookFragment : Fragment() {
                     appViewModel.reloadFavorite()
                 }
             }
+        }
+
+        override fun onItemClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
+            appViewModel.selectItem(textbook)
         }
     }
 

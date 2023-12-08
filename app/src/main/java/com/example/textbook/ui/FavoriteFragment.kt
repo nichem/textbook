@@ -49,6 +49,9 @@ class FavoriteFragment : Fragment() {
                 adapter.submitData(it)
             }
         }
+        appViewModel.selectItemLiveData.observe(this.viewLifecycleOwner) {
+            if (it == null) binding.rv.clearFocus()
+        }
     }
 
     private val adapter by lazy {
@@ -70,6 +73,10 @@ class FavoriteFragment : Fragment() {
                 }
                 .setNegativeButton("取消") { _, _ -> }
                 .show()
+        }
+
+        override fun onItemClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
+            appViewModel.selectItem(textbook)
         }
     }
 

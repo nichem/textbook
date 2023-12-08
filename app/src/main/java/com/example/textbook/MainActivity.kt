@@ -1,5 +1,6 @@
 package com.example.textbook
 
+import android.Manifest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
@@ -12,7 +13,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.KeyboardUtils
+import com.blankj.utilcode.util.PermissionUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.example.textbook.App.Companion.PAGE_SIZE
 import com.example.textbook.App.Companion.app
@@ -20,6 +23,7 @@ import com.example.textbook.databinding.ActivityMainBinding
 import com.example.textbook.paging.TextbookPagingSource
 import com.example.textbook.ui.AllTextbookFragment
 import com.example.textbook.ui.FavoriteFragment
+import com.example.textbook.ui.PreviewFragment
 import com.example.textbook.utils.DataUtils.generateData
 import com.example.textbook.utils.DataUtils.isGenerate
 import com.example.textbook.utils.showLoading
@@ -57,11 +61,26 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+
+        appViewModel.selectItemLiveData.observe(this) {
+            if (it == null) {
+                val fragment =
+                    supportFragmentManager.findFragmentByTag("PreviewFragment") ?: return@observe
+                supportFragmentManager.beginTransaction()
+                    .remove(fragment)
+                    .commit()
+            } else {
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.flPreview, PreviewFragment.newInstance(), "PreviewFragment")
+                    .commit()
+            }
+        }
+
     }
 
     private fun initDatabase() = lifecycleScope.launch {
         if (isGenerate()) {
-            val loading = showLoading("初始化数据中...")
+            val loading = showLoading("初始化数据中...", false)
             generateData(assets)
             loading.dismiss()
         }
@@ -85,6 +104,7 @@ class MainActivity : AppCompatActivity() {
     private var time = 0L
     override fun onBackPressed() {
         if (appViewModel.isSearchState()) appViewModel.quitSearch()
+        else if (appViewModel.isPreviewState()) appViewModel.quitSelectItem()
         else {
             val tmp = SystemClock.elapsedRealtime()
             if (tmp - time > 1000L) ToastUtils.showShort("再按返回退出应用")

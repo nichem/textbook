@@ -1,6 +1,8 @@
 package com.example.textbook
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
@@ -8,6 +10,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.example.textbook.database.Repository
+import com.example.textbook.database.Textbook
 import com.example.textbook.paging.TextbookPagingSource
 
 class AppViewModel : ViewModel() {
@@ -56,5 +59,19 @@ class AppViewModel : ViewModel() {
     fun isSearchState(): Boolean {
         Log.d("test", "<$searchKey> ${searchKey.isNotBlank()}")
         return searchKey.isNotBlank()
+    }
+
+    private var _selectItemLiveData = MutableLiveData<Textbook?>()
+    val selectItemLiveData: LiveData<Textbook?>
+        get() = _selectItemLiveData
+
+    fun isPreviewState() = selectItemLiveData.value != null
+
+    fun selectItem(textbook: Textbook) {
+        _selectItemLiveData.postValue(textbook)
+    }
+
+    fun quitSelectItem() {
+        _selectItemLiveData.postValue(null)
     }
 }

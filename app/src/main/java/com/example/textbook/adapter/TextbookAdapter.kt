@@ -39,6 +39,13 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
             if (textbook == null) return@setOnClickListener
             callback?.onFavoriteClick(this, textbook, position)
         }
+
+        holder.binding.root.setOnFocusChangeListener { _, hasFocus ->
+            if (textbook == null) return@setOnFocusChangeListener
+            if(hasFocus) {
+                callback?.onItemClick(this, textbook, position)
+            }
+        }
     }
 
     private fun updateFavoriteUI(binding: ItemTextbookBinding, isFavorite: Boolean) {
@@ -69,6 +76,8 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
 
     interface Callback {
         fun onFavoriteClick(adapter: TextbookAdapter, textbook: Textbook, position: Int)
+
+        fun onItemClick(adapter: TextbookAdapter, textbook: Textbook, position: Int)
     }
 }
 

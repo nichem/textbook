@@ -8,13 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.PathUtils
 import com.bumptech.glide.Glide
 import com.example.textbook.AppViewModel
 import com.example.textbook.R
+import com.example.textbook.database.Repository
+import com.example.textbook.database.Textbook
 import com.example.textbook.databinding.FragmentPreviewBinding
 import com.example.textbook.utils.getFile
+import com.example.textbook.utils.isDownload
 import com.github.barteksc.pdfviewer.util.FitPolicy
+import kotlinx.coroutines.launch
 import java.io.File
 
 
@@ -24,6 +29,7 @@ class PreviewFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentPreviewBinding
+    private var textbook: Textbook? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,16 +44,18 @@ class PreviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         appViewModel.selectItemLiveData.observe(this.viewLifecycleOwner) {
+            textbook = it
             if (it == null) {
                 binding.layoutPreview.isGone = true
                 binding.pdfView.recycle()
                 return@observe
             }
             val file = it.getFile(requireContext())
-            if (file.exists()) {
+            if (file.isDownload()) {
                 //pdf 展示
                 binding.layoutPreview.isGone = true
                 binding.pdfView.fromFile(file)
+                    .defaultPage(it.lastPage)
                     .swipeHorizontal(true)
                     .pageFitPolicy(FitPolicy.HEIGHT)
                     .load()
@@ -63,6 +71,13 @@ class PreviewFragment : Fragment() {
                         .into(binding.imageView2)
             }
         }
+    }
+
+    fun saveLastPage() = lifecycleScope.launch {
+        val textbook = this@PreviewFragment.textbook ?: return@launch
+        val file = textbook.getFile(requireContext())
+        if (file.isDownload())
+            Repository.recordTextbookLastPage(textbook, binding.pdfView.currentPage)
     }
 
     companion object {

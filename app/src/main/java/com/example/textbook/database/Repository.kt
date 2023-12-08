@@ -70,4 +70,11 @@ object Repository {
         set(value) {
             MMKV.defaultMMKV().encode("isShowAuthor", value)
         }
+
+    suspend fun recordTextbookLastPage(textbook: Textbook, lastPage: Int): Int {
+        textbook.lastPage = lastPage
+        return withContext(IO) {
+            localDao.updateTextbook(textbook)
+        }
+    }
 }

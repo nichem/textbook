@@ -16,5 +16,6 @@ data class Textbook(
     val thumbnails: List<String>,
     val size: Int,
     val tags: List<String>,
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    var lastPage: Int = 0
 )

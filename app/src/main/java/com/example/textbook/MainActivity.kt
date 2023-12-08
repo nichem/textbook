@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity() {
             if (it == null) {
                 val fragment =
                     supportFragmentManager.findFragmentByTag("PreviewFragment") ?: return@observe
+                if (fragment is PreviewFragment) fragment.saveLastPage()
                 supportFragmentManager.beginTransaction()
                     .remove(fragment)
                     .commit()

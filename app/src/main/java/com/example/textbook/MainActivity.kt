@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         }.attach()
 
         binding.etSearch.setOnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
                 val key = v.text.trim().toString()
                 if (key.isNotBlank()) {
                     appViewModel.search(key)
@@ -119,8 +120,8 @@ class MainActivity : AppCompatActivity() {
 
     private var time = 0L
     override fun onBackPressed() {
-        if (appViewModel.isSearchState()) appViewModel.quitSearch()
-        else if (appViewModel.isPreviewState()) appViewModel.quitSelectItem()
+        if (appViewModel.isPreviewState()) appViewModel.quitSelectItem()
+        else if (appViewModel.isSearchState()) appViewModel.quitSearch()
         else {
             val tmp = SystemClock.elapsedRealtime()
             if (tmp - time > 1000L) ToastUtils.showShort("再按返回退出应用")

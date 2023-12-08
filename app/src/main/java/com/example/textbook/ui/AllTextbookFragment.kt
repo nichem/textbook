@@ -56,7 +56,6 @@ class AllTextbookFragment : Fragment() {
             if (it == null) binding.rv.clearFocus()
         }
         appViewModel.updateDownloadUILiveData.observe(this.viewLifecycleOwner) {
-            Log.d("test", "++++++++++++++++++++++++++")
             adapter.notifyDataSetChanged()
         }
     }

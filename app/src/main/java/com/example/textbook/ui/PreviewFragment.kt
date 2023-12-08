@@ -19,6 +19,8 @@ import com.example.textbook.databinding.FragmentPreviewBinding
 import com.example.textbook.utils.getFile
 import com.example.textbook.utils.isDownload
 import com.github.barteksc.pdfviewer.util.FitPolicy
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -73,11 +75,14 @@ class PreviewFragment : Fragment() {
         }
     }
 
-    fun saveLastPage() = lifecycleScope.launch {
+    fun saveLastPage() = GlobalScope.launch {
         val textbook = this@PreviewFragment.textbook ?: return@launch
         val file = textbook.getFile(requireContext())
-        if (file.isDownload())
+        if (file.isDownload()) {
             Repository.recordTextbookLastPage(textbook, binding.pdfView.currentPage)
+            appViewModel.reloadFavorite()
+            appViewModel.reloadAll()
+        }
     }
 
     companion object {

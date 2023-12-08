@@ -20,7 +20,8 @@
             android:layout_weight="1"
             android:hint="@string/hint"
             android:imeOptions="actionSearch"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:singleLine="true" />
     </LinearLayout>
 
     <com.google.android.material.tabs.TabLayout

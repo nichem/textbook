@@ -70,9 +70,13 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
     private fun updateDownloadUI(binding: ItemTextbookBinding, textbook: Textbook) {
         val file = textbook.getFile(app)
         val isDownload = file.exists() && file.length() > 10
-        binding.tvDownload.text = if (isDownload) "已下载" else "下载"
+        binding.tvDownload.text = if (isDownload) "删除" else "下载"
+        binding.tvDownload.setTextColor(
+            if (isDownload) ColorUtils.getColor(R.color.select_color)
+            else ColorUtils.getColor(R.color.normal_color)
+        )
         binding.imageViewDownload.setImageResource(
-            if (isDownload) R.drawable.baseline_download_24_select
+            if (isDownload) R.drawable.baseline_block_24
             else R.drawable.baseline_download_24
         )
     }

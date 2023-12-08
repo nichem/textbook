@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.view.inputmethod.EditorInfo
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +20,7 @@ import com.blankj.utilcode.util.PermissionUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.example.textbook.App.Companion.PAGE_SIZE
 import com.example.textbook.App.Companion.app
+import com.example.textbook.database.Repository
 import com.example.textbook.database.Textbook
 import com.example.textbook.databinding.ActivityMainBinding
 import com.example.textbook.paging.TextbookPagingSource
@@ -29,6 +31,8 @@ import com.example.textbook.utils.DataUtils.generateData
 import com.example.textbook.utils.DataUtils.isGenerate
 import com.example.textbook.utils.DownloadUtil
 import com.example.textbook.utils.getFile
+import com.example.textbook.utils.isDownload
+import com.example.textbook.utils.showAskDialog
 import com.example.textbook.utils.showLoading
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers.IO
@@ -78,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                     .commit()
             } else {
                 supportFragmentManager.beginTransaction()
-                    .add(R.id.flPreview, PreviewFragment.newInstance(), "PreviewFragment")
+                    .replace(R.id.flPreview, PreviewFragment.newInstance(), "PreviewFragment")
                     .commit()
             }
         }
@@ -86,6 +90,7 @@ class MainActivity : AppCompatActivity() {
         appViewModel.downloadLiveData.observe(this) {
             download(it)
         }
+        showAuthor()
     }
 
     private fun initDatabase() = lifecycleScope.launch {
@@ -125,16 +130,22 @@ class MainActivity : AppCompatActivity() {
 
     private var downloadJob: Job? = null
     private fun download(textbook: Textbook) {
+        val downloadFile = textbook.getFile(this@MainActivity)
+        if (downloadFile.isDownload()) {
+            showAskDialog("是否删除《${textbook.title}》？") {
+                downloadFile.delete()
+                appViewModel.updateDownloadUI()
+            }
+            return
+        }
         val loading = showLoading("", canCancelable = true) {
             ToastUtils.showShort("下载已取消")
-            val downloadFile = textbook.getFile(this@MainActivity)
             if (downloadFile.exists()) downloadFile.delete()
             downloadJob?.cancel()
         }
 
         downloadJob = lifecycleScope.launch {
             //下载过程
-            val downloadFile = textbook.getFile(this@MainActivity)
             DownloadUtil.download(
                 textbook.download,
                 downloadFile,
@@ -162,6 +173,18 @@ class MainActivity : AppCompatActivity() {
 
                 }
             )
+        }
+    }
+
+    private fun showAuthor() {
+        if (Repository.isShowAuthor) {
+            AlertDialog.Builder(this)
+                .setMessage("作者：dlearn")
+                .setPositiveButton("不再弹出") { _, _ ->
+                    Repository.isShowAuthor = false
+                }
+                .setNegativeButton("下次还弹") { _, _ -> }
+                .show()
         }
     }
 

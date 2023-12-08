@@ -20,8 +20,11 @@ import com.example.textbook.database.Repository
 import com.example.textbook.database.Textbook
 import com.example.textbook.databinding.FragmentFavoriteBinding
 import com.example.textbook.paging.TextbookPagingSource
+import com.example.textbook.utils.getFile
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FavoriteFragment : Fragment() {
     private val appViewModel by lazy {
@@ -67,7 +70,7 @@ class FavoriteFragment : Fragment() {
                 .setMessage("是否取消收藏${adapter.pureTitle(textbook.title)}?")
                 .setPositiveButton("确认") { _, _ ->
                     lifecycleScope.launch {
-                        val row = Repository.favoriteTextbook(textbook, !textbook.isFavorite)
+                        val row = Repository.favoriteTextbook(textbook, false)
                         if (row > 0) {
                             adapter.refresh()
                             appViewModel.reloadAll()

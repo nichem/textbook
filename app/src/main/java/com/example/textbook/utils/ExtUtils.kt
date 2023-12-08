@@ -7,3 +7,5 @@ import java.io.File
 fun Textbook.getFile(context: Context): File {
     return File(context.getExternalFilesDir(null), "${id}.pdf")
 }
+
+fun File.isDownload(): Boolean = exists() && length() > 10

@@ -56,7 +56,7 @@ class AllTextbookFragment : Fragment() {
             if (it == null) binding.rv.clearFocus()
         }
         appViewModel.updateDownloadUILiveData.observe(this.viewLifecycleOwner) {
-            Log.d("test","++++++++++++++++++++++++++")
+            Log.d("test", "++++++++++++++++++++++++++")
             adapter.notifyDataSetChanged()
         }
     }
@@ -82,6 +82,14 @@ class AllTextbookFragment : Fragment() {
         }
 
         override fun onDownloadClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
+            lifecycleScope.launch {//一旦下载了就自动收藏
+                val row = Repository.favoriteTextbook(textbook, true)
+                if (row > 0) {
+                    textbook.isFavorite = true
+                    adapter.notifyItemChanged(position)
+                    appViewModel.reloadFavorite()
+                }
+            }
             appViewModel.download(textbook)
         }
     }

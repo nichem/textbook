@@ -18,7 +18,7 @@ object DownloadUtil {
 
     /**
      * @param url 下载连接
-     * @param saveDir 储存下载文件的SDCard目录
+     * @param downloadFile 要写入的文件对象
      * @param listener 下载监听
      */
     fun download(url: String, downloadFile: File, listener: OnDownloadListener) {

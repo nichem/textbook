@@ -6,6 +6,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.textbook.App
 import com.example.textbook.App.Companion.PAGE_SIZE
 import com.example.textbook.App.Companion.app
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 
@@ -63,4 +64,10 @@ object Repository {
             localDao.findTextbookByTitle(SimpleSQLiteQuery(query))
         }
     }
+
+    var isShowAuthor: Boolean
+        get() = MMKV.defaultMMKV().decodeBool("isShowAuthor", true)
+        set(value) {
+            MMKV.defaultMMKV().encode("isShowAuthor", value)
+        }
 }

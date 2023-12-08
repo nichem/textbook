@@ -1,6 +1,7 @@
 package com.example.textbook.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -54,6 +55,10 @@ class AllTextbookFragment : Fragment() {
         appViewModel.selectItemLiveData.observe(this.viewLifecycleOwner) {
             if (it == null) binding.rv.clearFocus()
         }
+        appViewModel.updateDownloadUILiveData.observe(this.viewLifecycleOwner) {
+            Log.d("test","++++++++++++++++++++++++++")
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private val adapter by lazy {
@@ -74,6 +79,10 @@ class AllTextbookFragment : Fragment() {
 
         override fun onItemClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
             appViewModel.selectItem(textbook)
+        }
+
+        override fun onDownloadClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
+            appViewModel.download(textbook)
         }
     }
 

@@ -74,4 +74,21 @@ class AppViewModel : ViewModel() {
     fun quitSelectItem() {
         _selectItemLiveData.postValue(null)
     }
+
+    private var _downloadLiveData = MutableLiveData<Textbook>()
+
+    val downloadLiveData: LiveData<Textbook>
+        get() = _downloadLiveData
+
+    fun download(textbook: Textbook) {
+        _downloadLiveData.postValue(textbook)
+    }
+
+    private var _updateDownloadUILiveData = MutableLiveData<Int>(0)
+    val updateDownloadUILiveData: LiveData<Int>
+        get() = _updateDownloadUILiveData
+
+    fun updateDownloadUI() {
+        _updateDownloadUILiveData.value = _updateDownloadUILiveData.value!! + 1
+    }
 }

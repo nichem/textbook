@@ -52,6 +52,9 @@ class FavoriteFragment : Fragment() {
         appViewModel.selectItemLiveData.observe(this.viewLifecycleOwner) {
             if (it == null) binding.rv.clearFocus()
         }
+        appViewModel.updateDownloadUILiveData.observe(this.viewLifecycleOwner) {
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private val adapter by lazy {
@@ -77,6 +80,10 @@ class FavoriteFragment : Fragment() {
 
         override fun onItemClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
             appViewModel.selectItem(textbook)
+        }
+
+        override fun onDownloadClick(adapter: TextbookAdapter, textbook: Textbook, position: Int) {
+            appViewModel.download(textbook)
         }
     }
 

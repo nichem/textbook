@@ -19,6 +19,7 @@ import com.blankj.utilcode.util.PermissionUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.example.textbook.App.Companion.PAGE_SIZE
 import com.example.textbook.App.Companion.app
+import com.example.textbook.database.Textbook
 import com.example.textbook.databinding.ActivityMainBinding
 import com.example.textbook.paging.TextbookPagingSource
 import com.example.textbook.ui.AllTextbookFragment
@@ -26,9 +27,15 @@ import com.example.textbook.ui.FavoriteFragment
 import com.example.textbook.ui.PreviewFragment
 import com.example.textbook.utils.DataUtils.generateData
 import com.example.textbook.utils.DataUtils.isGenerate
+import com.example.textbook.utils.DownloadUtil
+import com.example.textbook.utils.getFile
 import com.example.textbook.utils.showLoading
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy {
@@ -76,6 +83,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        appViewModel.downloadLiveData.observe(this) {
+            download(it)
+        }
     }
 
     private fun initDatabase() = lifecycleScope.launch {
@@ -113,5 +123,46 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var downloadJob: Job? = null
+    private fun download(textbook: Textbook) {
+        val loading = showLoading("", canCancelable = true) {
+            ToastUtils.showShort("下载已取消")
+            val downloadFile = textbook.getFile(this@MainActivity)
+            if (downloadFile.exists()) downloadFile.delete()
+            downloadJob?.cancel()
+        }
+
+        downloadJob = lifecycleScope.launch {
+            //下载过程
+            val downloadFile = textbook.getFile(this@MainActivity)
+            DownloadUtil.download(
+                textbook.download,
+                downloadFile,
+                object : DownloadUtil.OnDownloadListener {
+                    override fun onDownloadSuccess() {
+                        runOnUiThread {
+                            appViewModel.updateDownloadUI()
+                            loading.dismiss()
+                        }
+                    }
+
+                    override fun onDownloading(progress: Int) {
+                        runOnUiThread {
+                            loading.setMessage("${textbook.title}\n已下载：${progress}%")
+                        }
+                    }
+
+                    override fun onDownloadFailed() {
+                        runOnUiThread {
+                            ToastUtils.showShort("下载失败")
+                            loading.dismiss()
+                        }
+                        if (downloadFile.exists()) downloadFile.delete()
+                    }
+
+                }
+            )
+        }
+    }
 
 }

@@ -42,11 +42,13 @@
         app:layout_constraintLeft_toLeftOf="@id/tvTitle">
 
         <ImageView
+            android:id="@+id/imageViewDownload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/baseline_download_24" />
 
         <TextView
+            android:id="@+id/tvDownload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="下载"

@@ -10,10 +10,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.blankj.utilcode.util.ColorUtils
 import com.bumptech.glide.Glide
+import com.example.textbook.App.Companion.app
 import com.example.textbook.R
 import com.example.textbook.database.Repository
 import com.example.textbook.database.Textbook
 import com.example.textbook.databinding.ItemTextbookBinding
+import com.example.textbook.utils.getFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -34,6 +36,7 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
                 .into(holder.binding.imageView)
             holder.binding.tvTitle.text = pureTitle(textbook.title)
             updateFavoriteUI(holder.binding, textbook.isFavorite)
+            updateDownloadUI(holder.binding, textbook)
         }
         holder.binding.layoutFavorite.setOnClickListener {
             if (textbook == null) return@setOnClickListener
@@ -42,9 +45,14 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
 
         holder.binding.root.setOnFocusChangeListener { _, hasFocus ->
             if (textbook == null) return@setOnFocusChangeListener
-            if(hasFocus) {
+            if (hasFocus) {
                 callback?.onItemClick(this, textbook, position)
             }
+        }
+
+        holder.binding.layoutDownload.setOnClickListener {
+            if (textbook == null) return@setOnClickListener
+            callback?.onDownloadClick(this, textbook, position)
         }
     }
 
@@ -57,6 +65,16 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
             else ColorUtils.getColor(R.color.normal_color)
         )
         binding.tvFavorite.text = if (isFavorite) "取消收藏" else "收藏"
+    }
+
+    private fun updateDownloadUI(binding: ItemTextbookBinding, textbook: Textbook) {
+        val file = textbook.getFile(app)
+        val isDownload = file.exists() && file.length() > 10
+        binding.tvDownload.text = if (isDownload) "已下载" else "下载"
+        binding.imageViewDownload.setImageResource(
+            if (isDownload) R.drawable.baseline_download_24_select
+            else R.drawable.baseline_download_24
+        )
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TextbookViewHolder {
@@ -78,6 +96,8 @@ class TextbookAdapter(diffCallback: TextbookComparator) :
         fun onFavoriteClick(adapter: TextbookAdapter, textbook: Textbook, position: Int)
 
         fun onItemClick(adapter: TextbookAdapter, textbook: Textbook, position: Int)
+
+        fun onDownloadClick(adapter: TextbookAdapter, textbook: Textbook, position: Int)
     }
 }
 

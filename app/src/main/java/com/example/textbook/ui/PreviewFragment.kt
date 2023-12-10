@@ -75,8 +75,9 @@ class PreviewFragment : Fragment() {
         }
     }
 
-    fun saveLastPage() = GlobalScope.launch {
-        val textbook = this@PreviewFragment.textbook ?: return@launch
+    fun getCurTextbook(): Textbook? = textbook
+    fun saveLastPage(textbook: Textbook?) = GlobalScope.launch {
+        if (textbook == null) return@launch
         val file = textbook.getFile(requireContext())
         if (file.isDownload()) {
             Repository.recordTextbookLastPage(textbook, binding.pdfView.currentPage)

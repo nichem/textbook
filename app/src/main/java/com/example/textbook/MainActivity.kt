@@ -75,13 +75,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         appViewModel.selectItemLiveData.observe(this) {
+            val fragment =
+                supportFragmentManager.findFragmentByTag("PreviewFragment")
+            if (fragment is PreviewFragment) {
+                fragment.saveLastPage(fragment.getCurTextbook())
+            }
             if (it == null) {
-                val fragment =
-                    supportFragmentManager.findFragmentByTag("PreviewFragment") ?: return@observe
-                if (fragment is PreviewFragment) fragment.saveLastPage()
-                supportFragmentManager.beginTransaction()
-                    .remove(fragment)
-                    .commit()
+                if (fragment != null)
+                    supportFragmentManager.beginTransaction()
+                        .remove(fragment)
+                        .commit()
             } else {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.flPreview, PreviewFragment.newInstance(), "PreviewFragment")
